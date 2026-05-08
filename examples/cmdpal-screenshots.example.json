@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/json",
+  "outputDir": "screenshots",
+  "openHotkey": "Win+Alt+Space",
+  "initialDelayMs": 900,
+  "settleDelayMs": 500,
+  "cases": [
+    {
+      "name": "tableplus-connections",
+      "query": "TablePlus",
+      "keys": ["Enter"],
+      "gradientStart": "#FFAF40",
+      "gradientEnd": "#FF5F6D",
+      "gradientAngle": 135,
+      "description": "TablePlus demo connection list using Bezl Dawn"
+    },
+    {
+      "name": "tailscale-top-level",
+      "query": "tailscale",
+      "gradientStart": "#43CEA2",
+      "gradientEnd": "#185A9D",
+      "gradientAngle": 135,
+      "description": "Tailscale top-level command list using Bezl Aurora"
+    },
+    {
+      "name": "tailscale-status",
+      "query": "status",
+      "keys": ["Enter"],
+      "gradientStart": "#43CEA2",
+      "gradientEnd": "#185A9D",
+      "gradientAngle": 135,
+      "description": "Tailscale status page using Bezl Aurora"
+    },
+    {
+      "name": "tailscale-my-devices",
+      "query": "my devices",
+      "keys": ["Enter"],
+      "gradientStart": "#43CEA2",
+      "gradientEnd": "#185A9D",
+      "gradientAngle": 135,
+      "description": "Tailscale My Devices page using Bezl Aurora"
+    }
+  ]
+}
