@@ -167,6 +167,25 @@ function Invoke-RestoreMinimizedWindows {
     $shell.UndoMinimizeALL()
 }
 
+function Save-BitmapAsPngAndJpg([System.Drawing.Bitmap]$Bitmap, [string]$Path) {
+    $pngPath = [System.IO.Path]::ChangeExtension($Path, '.png')
+    $jpgPath = [System.IO.Path]::ChangeExtension($Path, '.jpg')
+
+    $Bitmap.Save($pngPath, [System.Drawing.Imaging.ImageFormat]::Png)
+
+    $jpegEncoder = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() |
+        Where-Object { $_.MimeType -eq 'image/jpeg' } | Select-Object -First 1
+    $encoderParams = New-Object System.Drawing.Imaging.EncoderParameters(1)
+    $qualityParam = New-Object System.Drawing.Imaging.EncoderParameter(
+        [System.Drawing.Imaging.Encoder]::Quality, [long]90)
+    $encoderParams.Param[0] = $qualityParam
+    try {
+        $Bitmap.Save($jpgPath, $jpegEncoder, $encoderParams)
+    } finally {
+        $encoderParams.Dispose()
+    }
+}
+
 function Capture-WindowOrDesktop(
     [string]$Path,
     [switch]$Desktop,
@@ -186,7 +205,7 @@ function Capture-WindowOrDesktop(
         $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
         try {
             $graphics.CopyFromScreen($x, $y, 0, 0, $bitmap.Size)
-            $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
+            Save-BitmapAsPngAndJpg -Bitmap $bitmap -Path $Path
         } finally {
             $graphics.Dispose()
             $bitmap.Dispose()
@@ -211,7 +230,7 @@ function Capture-WindowOrDesktop(
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
         $graphics.CopyFromScreen($x, $y, 0, 0, $bitmap.Size)
-        $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
+        Save-BitmapAsPngAndJpg -Bitmap $bitmap -Path $Path
     } finally {
         $graphics.Dispose()
         $bitmap.Dispose()
@@ -347,6 +366,7 @@ foreach ($case in $cases) {
     Start-Sleep -Milliseconds $SettleDelayMs
     Capture-WindowOrDesktop -Path $file -Desktop:$CaptureDesktop -Padding ([int]$casePadding) -StartColor ([string]$caseGradientStart) -EndColor ([string]$caseGradientEnd) -Angle ([float]$caseGradientAngle)
     Write-Host "  wrote $file"
+    Write-Host "  wrote $([System.IO.Path]::ChangeExtension($file, '.jpg'))"
 
     Send-KeyChord 'Esc'
     Start-Sleep -Milliseconds 200
