@@ -258,10 +258,15 @@ if (-not [System.IO.Path]::IsPathRooted($OutputDir)) {
 $configuredOpenHotkey = Get-OptionalProperty $configJson 'openHotkey'
 $configuredInitialDelayMs = Get-OptionalProperty $configJson 'initialDelayMs'
 $configuredSettleDelayMs = Get-OptionalProperty $configJson 'settleDelayMs'
+$configuredMinimizeWindows = Get-OptionalProperty $configJson 'minimizeWindows'
 
 if (-not $OpenHotkey) { $OpenHotkey = if ($configuredOpenHotkey) { $configuredOpenHotkey } else { 'Win+Alt+Space' } }
 if (-not $PSBoundParameters.ContainsKey('InitialDelayMs')) { $InitialDelayMs = if ($configuredInitialDelayMs) { [int]$configuredInitialDelayMs } else { 900 } }
 if (-not $PSBoundParameters.ContainsKey('SettleDelayMs')) { $SettleDelayMs = if ($configuredSettleDelayMs) { [int]$configuredSettleDelayMs } else { 500 } }
+$shouldMinimizeWindows = $MinimizeWindows.IsPresent
+if (-not $PSBoundParameters.ContainsKey('MinimizeWindows') -and $null -ne $configuredMinimizeWindows) {
+    $shouldMinimizeWindows = [bool]$configuredMinimizeWindows
+}
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
@@ -271,7 +276,7 @@ Write-Host "Open hotkey: $OpenHotkey"
 Write-Host "Screenshot padding: $PaddingPx px"
 if (-not $CaptureDesktop) { Write-Host "Gradient background: $GradientStart -> $GradientEnd ($GradientAngle°)" }
 if (-not $NoSetDesktopBackground) { Write-Host 'Desktop wallpaper will be changed per case and restored at the end.' }
-if ($MinimizeWindows) { Write-Host 'Open windows will be minimized before capture and restored at the end.' }
+if ($shouldMinimizeWindows) { Write-Host 'Open windows will be minimized before capture and restored at the end.' }
 if ($DryRun) { Write-Host 'Dry run: no keys will be sent and no screenshots will be captured.' }
 
 $windowsMinimized = $false
@@ -285,7 +290,7 @@ if (-not $NoSetDesktopBackground) {
 }
 
 try {
-if ($MinimizeWindows) {
+if ($shouldMinimizeWindows) {
     Invoke-MinimizeAllWindows
     $windowsMinimized = $true
     Start-Sleep -Milliseconds 500

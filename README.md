@@ -40,6 +40,7 @@ Create a JSON file like this:
   "openHotkey": "Win+Alt+Space",
   "initialDelayMs": 900,
   "settleDelayMs": 500,
+  "minimizeWindows": false,
   "cases": [
     {
       "name": "tableplus-connections",
@@ -96,6 +97,14 @@ Minimize all existing windows before taking screenshots and restore them when th
 
 ```powershell
 pwsh ./Invoke-CmdPalScreenshots.ps1 -MinimizeWindows
+```
+
+Or enable it in the JSON config:
+
+```json
+{
+  "minimizeWindows": true
+}
 ```
 
 Capture the full desktop instead of the foreground window region:

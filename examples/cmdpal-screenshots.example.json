@@ -4,6 +4,7 @@
   "openHotkey": "Win+Alt+Space",
   "initialDelayMs": 900,
   "settleDelayMs": 500,
+  "minimizeWindows": false,
   "cases": [
     {
       "name": "tableplus-connections",
