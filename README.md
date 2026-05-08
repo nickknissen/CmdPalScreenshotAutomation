@@ -10,6 +10,7 @@ The script can:
 - Temporarily set a per-screenshot Windows desktop gradient background.
 - Capture the Command Palette window with configurable real desktop padding.
 - Restore the original desktop wallpaper when finished.
+- Optionally minimize existing windows before capture and restore them when done.
 
 ## Requirements
 
@@ -89,6 +90,12 @@ Skip changing your real desktop wallpaper:
 
 ```powershell
 pwsh ./Invoke-CmdPalScreenshots.ps1 -NoSetDesktopBackground
+```
+
+Minimize all existing windows before taking screenshots and restore them when the script finishes or fails:
+
+```powershell
+pwsh ./Invoke-CmdPalScreenshots.ps1 -MinimizeWindows
 ```
 
 Capture the full desktop instead of the foreground window region:

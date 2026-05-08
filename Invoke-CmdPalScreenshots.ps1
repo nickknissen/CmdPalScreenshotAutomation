@@ -21,6 +21,7 @@ param(
     [float]$GradientAngle = 135,
     [switch]$CaptureDesktop,
     [switch]$NoSetDesktopBackground,
+    [switch]$MinimizeWindows,
     [switch]$NoClearBetweenCases,
     [switch]$DryRun
 )
@@ -152,6 +153,20 @@ function Set-DesktopWallpaper([string]$Path) {
     if (-not $ok) { throw "Failed to set desktop wallpaper to '$Path'." }
 }
 
+function Invoke-MinimizeAllWindows {
+    if ($script:CmdPalScreenshotDryRun) { Write-Verbose 'DRY RUN minimize all windows'; return }
+
+    $shell = New-Object -ComObject Shell.Application
+    $shell.MinimizeAll()
+}
+
+function Invoke-RestoreMinimizedWindows {
+    if ($script:CmdPalScreenshotDryRun) { Write-Verbose 'DRY RUN restore minimized windows'; return }
+
+    $shell = New-Object -ComObject Shell.Application
+    $shell.UndoMinimizeALL()
+}
+
 function Capture-WindowOrDesktop(
     [string]$Path,
     [switch]$Desktop,
@@ -256,8 +271,10 @@ Write-Host "Open hotkey: $OpenHotkey"
 Write-Host "Screenshot padding: $PaddingPx px"
 if (-not $CaptureDesktop) { Write-Host "Gradient background: $GradientStart -> $GradientEnd ($GradientAngle°)" }
 if (-not $NoSetDesktopBackground) { Write-Host 'Desktop wallpaper will be changed per case and restored at the end.' }
+if ($MinimizeWindows) { Write-Host 'Open windows will be minimized before capture and restored at the end.' }
 if ($DryRun) { Write-Host 'Dry run: no keys will be sent and no screenshots will be captured.' }
 
+$windowsMinimized = $false
 $originalWallpaper = $null
 $restoreWallpaper = $false
 $tempWallpaperDir = Join-Path ([System.IO.Path]::GetTempPath()) ('cmdpal-screenshots-' + [Guid]::NewGuid().ToString('N'))
@@ -268,6 +285,12 @@ if (-not $NoSetDesktopBackground) {
 }
 
 try {
+if ($MinimizeWindows) {
+    Invoke-MinimizeAllWindows
+    $windowsMinimized = $true
+    Start-Sleep -Milliseconds 500
+}
+
 foreach ($case in $cases) {
     $name = [string](Get-OptionalProperty $case 'name')
     if (-not $name) { throw 'Each case requires a name.' }
@@ -333,6 +356,10 @@ foreach ($case in $cases) {
         if (Test-Path $tempWallpaperDir) {
             Remove-Item -Recurse -Force $tempWallpaperDir -ErrorAction SilentlyContinue
         }
+    }
+
+    if ($windowsMinimized) {
+        Invoke-RestoreMinimizedWindows
     }
 }
 
